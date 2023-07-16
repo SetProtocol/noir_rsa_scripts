@@ -51,25 +51,25 @@ def __main__():
     pubkey_n_limbs = breakdown_to_limbs(pubkey.n)
 
     message = fake.text()
-    message_bytes = message.encode('utf-8')
+    message_bytes = message.encode()
+    print(message_bytes)
     message_hash_bytes = rsa.compute_hash(message_bytes, 'SHA-256')
+    print("message hash bytes", message_hash_bytes)
     signature_bytes = rsa.sign_hash(message_hash_bytes, privkey, 'SHA-256')
-    signature_int = int.from_bytes(signature_bytes, 'little')
+    print("signature bytes: ", signature_bytes)
+    signature_int = int.from_bytes(signature_bytes, 'big')
     signature_limbs = breakdown_to_limbs(signature_int)
 
-    message_hash_int = int.from_bytes(message_hash_bytes, 'little')
+    message_hash_int = int.from_bytes(message_hash_bytes, 'big')
     message_hash_limbs = breakdown_to_limbs(message_hash_int)
 
-    # bigint exponentiation of signature_int by pubkey.e
-    padded_256_bytes = rsa.pkcs1v15._pad_for_signing(message_hash_bytes, 560)
+    padded_sha256_hash = (signature_int ** pubkey.e) % pubkey.n
+    print("padded 256 num: ", hex(padded_sha256_hash))
 
-    # padded_sha256_hash = signature_int ** pubkey.e % pubkey.n
-    print("padded 256 hash: ", padded_sha256_hash)
 
-    padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(560, 'little') # 8 * 70 = 560 (MAX_BYTES = 70)
+    padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(70, 'big') # 8 * 70 = 560 (MAX_BYTES = 70)
 
     print("padded 256 hash in bytes: ", padded_sha256_hash_bytes)
-    print("message hash bytes", message_hash_bytes)
 
     # print("message hash limbs: ", message_hash_limbs)
     # print("signature limbs: ", signature_limbs)
