@@ -5,7 +5,7 @@ from faker import Faker
 
 fake = Faker()
 
-NUM_EXAMPLES = 10
+NUM_EXAMPLES = 1
 
 BITS_PER_LIMB =  56
 NUM_LIMBS = 10
@@ -43,25 +43,6 @@ def breakdown_to_limbs(num):
   num_limbs.reverse()
   return num_limbs
 
-# generate a random 512 bit number
-max_56_bit_num = 2**56 - 1
-a = max_56_bit_num + 1
-b = max_56_bit_num + 1
-sum = a + b
-print("a: ", a)
-print("b: ", b)
-print("sum: ", sum)
-
-# convert to limbs
-a_limbs = breakdown_to_limbs(a)
-b_limbs = breakdown_to_limbs(b)
-sum_limbs = breakdown_to_limbs(sum)
-
-# print the limbs
-print("a_limbs: ", a_limbs)
-print("b_limbs: ", b_limbs)
-print("sum_limbs: ", sum_limbs)
-
 def __main__():
   for i in range(NUM_EXAMPLES):
     print("Example: ", i)
@@ -69,19 +50,31 @@ def __main__():
     pubkey_e_limbs = breakdown_to_limbs(pubkey.e)
     pubkey_n_limbs = breakdown_to_limbs(pubkey.n)
 
-    message_bytes = fake.text().encode('utf-8')
-    signature_bytes = rsa.sign(message_bytes, privkey, 'SHA-256')
+    message = fake.text()
+    message_bytes = message.encode('utf-8')
+    message_hash_bytes = rsa.compute_hash(message_bytes, 'SHA-256')
+    signature_bytes = rsa.sign_hash(message_hash_bytes, privkey, 'SHA-256')
     signature_int = int.from_bytes(signature_bytes, 'little')
     signature_limbs = breakdown_to_limbs(signature_int)
 
-    message_int = int.from_bytes(message_bytes, 'little')
-    message_limbs = breakdown_to_limbs(message_int)
+    message_hash_int = int.from_bytes(message_hash_bytes, 'little')
+    message_hash_limbs = breakdown_to_limbs(message_hash_int)
 
+    # bigint exponentiation of signature_int by pubkey.e
+    padded_256_bytes = rsa.pkcs1v15._pad_for_signing(message_hash_bytes, 560)
 
-    print("message limbs: ", message_limbs)
-    print("signature limbs: ", signature_limbs)
-    print("public key e limbs: ", pubkey_e_limbs)
-    print("public key n: limbs", pubkey_n_limbs)
+    # padded_sha256_hash = signature_int ** pubkey.e % pubkey.n
+    print("padded 256 hash: ", padded_sha256_hash)
+
+    padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(560, 'little') # 8 * 70 = 560 (MAX_BYTES = 70)
+
+    print("padded 256 hash in bytes: ", padded_sha256_hash_bytes)
+    print("message hash bytes", message_hash_bytes)
+
+    # print("message hash limbs: ", message_hash_limbs)
+    # print("signature limbs: ", signature_limbs)
+    # print("public key e limbs: ", pubkey_e_limbs)
+    # print("public key n: limbs", pubkey_n_limbs)
     print("--------------------")
 
 __main__()
