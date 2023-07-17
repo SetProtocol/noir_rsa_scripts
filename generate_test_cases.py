@@ -55,6 +55,13 @@ def __main__():
     print(message_bytes)
     message_hash_bytes = rsa.compute_hash(message_bytes, 'SHA-256')
     print("message hash bytes", message_hash_bytes)
+    message_hash_in_bytes_of_size_70 = [int(el) for el in bytearray(message_hash_bytes)]
+    message_hash_in_bytes_of_size_70.reverse()
+    while len(message_hash_in_bytes_of_size_70) < 70:
+      # Add elements to the array
+      message_hash_in_bytes_of_size_70.append(0)
+    print(message_hash_in_bytes_of_size_70)
+
     signature_bytes = rsa.sign_hash(message_hash_bytes, privkey, 'SHA-256')
     print("signature bytes: ", signature_bytes)
     signature_int = int.from_bytes(signature_bytes, 'big')
@@ -70,7 +77,7 @@ def __main__():
     padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(70, 'big') # 8 * 70 = 560 (MAX_BYTES = 70)
     padded_sha256_hash_byte_array = bytearray(padded_sha256_hash_bytes)
     padded_sha256_hash_byte_array.reverse()
-    print("padded 256 hash in bytes in little endian: ", padded_sha256_hash_byte_array)
+    print("padded 256 hash in bytes in little endian: ", [int(el) for el in padded_sha256_hash_byte_array])
 
     # print("message hash limbs: ", message_hash_limbs)
     # print("signature limbs: ", signature_limbs)
