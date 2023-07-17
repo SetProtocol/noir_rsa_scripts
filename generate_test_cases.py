@@ -38,7 +38,7 @@ def breakdown_to_limbs(num):
 
   # convert the list of limbs to a list of integers
   num_limbs = [int(''.join(limb), 2) for limb in num_limbs]
- 
+
   # reverse the list of limbs
   num_limbs.reverse()
   return num_limbs
@@ -49,6 +49,7 @@ def __main__():
 
     # Generate Public and Private Keys
     (pubkey, privkey) = rsa.newkeys(512)
+
     pubkey_e_limbs = breakdown_to_limbs(pubkey.e)
     pubkey_n_limbs = breakdown_to_limbs(pubkey.n)
 
@@ -84,6 +85,9 @@ def __main__():
     padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(70, 'big') # 8 * 70 = 560 (MAX_BYTES = 70)
     padded_sha256_hash_byte_array = bytearray(padded_sha256_hash_bytes)
     padded_sha256_hash_byte_array.reverse()
+
+    pow_mod_limbs = breakdown_to_limbs(padded_sha256_hash)
+    print("pow mod limbs: ", pow_mod_limbs)
     print("padded 256 hash in bytes in little endian: ", [int(el) for el in padded_sha256_hash_byte_array])
 
     # Print Message Hash in Little Endean
@@ -93,7 +97,7 @@ def __main__():
     #   # Add elements to the array
     #   message_hash_in_bytes_of_size_70.append(0)
     print("Message hash", message_hash_in_bytes_of_size_70)
-    
+
     # integer little endian representation in Noir Code = [32, 4, 0, 5, 1, 2, 4, 3, 101, 1, 72, 134, 96, 9, 6, 13, 48, 49, 48]
     hex_big_endian = "3031300d060960864801650304020105000420"
     int_little_endian = [int(''.join([hex_big_endian[i], hex_big_endian[i+1]]), 16) for i in range(0, len(hex_big_endian), 2)]
