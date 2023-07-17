@@ -68,8 +68,9 @@ def __main__():
 
 
     padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(70, 'big') # 8 * 70 = 560 (MAX_BYTES = 70)
-
-    print("padded 256 hash in bytes: ", padded_sha256_hash_bytes)
+    padded_sha256_hash_byte_array = bytearray(padded_sha256_hash_bytes)
+    padded_sha256_hash_byte_array.reverse()
+    print("padded 256 hash in bytes in little endian: ", padded_sha256_hash_byte_array)
 
     # print("message hash limbs: ", message_hash_limbs)
     # print("signature limbs: ", signature_limbs)
