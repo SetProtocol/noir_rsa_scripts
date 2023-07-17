@@ -67,6 +67,7 @@ def __main__():
     signature_limbs = breakdown_to_limbs(signature_int)
 
     # Print inputs to Verify Function
+    print("Original Message Text", message)
     print("message hash limbs: ", message_hash_limbs)
     print("signature limbs: ", signature_limbs)
     print("public key e limbs: ", pubkey_e_limbs)
