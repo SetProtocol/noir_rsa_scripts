@@ -38,7 +38,7 @@ def breakdown_to_limbs(num):
 
   # convert the list of limbs to a list of integers
   num_limbs = [int(''.join(limb), 2) for limb in num_limbs]
-
+ 
   # reverse the list of limbs
   num_limbs.reverse()
   return num_limbs
@@ -46,43 +46,57 @@ def breakdown_to_limbs(num):
 def __main__():
   for i in range(NUM_EXAMPLES):
     print("Example: ", i)
+
+    # Generate Public and Private Keys
     (pubkey, privkey) = rsa.newkeys(512)
     pubkey_e_limbs = breakdown_to_limbs(pubkey.e)
     pubkey_n_limbs = breakdown_to_limbs(pubkey.n)
 
+    # 1 - Generate message
     message = fake.text()
     message_bytes = message.encode()
-    print(message_bytes)
+
+    # 2 - Generate Hashed and Padded Message
     message_hash_bytes = rsa.compute_hash(message_bytes, 'SHA-256')
-    print("message hash bytes", message_hash_bytes)
-    message_hash_in_bytes_of_size_70 = [int(el) for el in bytearray(message_hash_bytes)]
-    message_hash_in_bytes_of_size_70.reverse()
-    while len(message_hash_in_bytes_of_size_70) < 70:
-      # Add elements to the array
-      message_hash_in_bytes_of_size_70.append(0)
-    print(message_hash_in_bytes_of_size_70)
-
-    signature_bytes = rsa.sign_hash(message_hash_bytes, privkey, 'SHA-256')
-    print("signature bytes: ", signature_bytes)
-    signature_int = int.from_bytes(signature_bytes, 'big')
-    signature_limbs = breakdown_to_limbs(signature_int)
-
     message_hash_int = int.from_bytes(message_hash_bytes, 'big')
     message_hash_limbs = breakdown_to_limbs(message_hash_int)
 
+    # 3- Generated Signature
+    signature_bytes = rsa.sign_hash(message_hash_bytes, privkey, 'SHA-256')
+    signature_int = int.from_bytes(signature_bytes, 'big')
+    signature_limbs = breakdown_to_limbs(signature_int)
+
+    # Print inputs to Verify Function
+    print("message hash limbs: ", message_hash_limbs)
+    print("signature limbs: ", signature_limbs)
+    print("public key e limbs: ", pubkey_e_limbs)
+    print("public key n: limbs", pubkey_n_limbs)
+    print("-----------Debugging Lines Below ---------")
+
+    # ----- Below is print for debugging purposes where we print all lines in Little Endean
+    # The things that we want to print are 1) Padded Message Hash, 2) Message Hash
+
     padded_sha256_hash = (signature_int ** pubkey.e) % pubkey.n
-    print("padded 256 num: ", hex(padded_sha256_hash))
+    # print("padded 256 num: ", hex(padded_sha256_hash))
 
-
+    # Print Message Padded Message Hash
     padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(70, 'big') # 8 * 70 = 560 (MAX_BYTES = 70)
     padded_sha256_hash_byte_array = bytearray(padded_sha256_hash_bytes)
     padded_sha256_hash_byte_array.reverse()
     print("padded 256 hash in bytes in little endian: ", [int(el) for el in padded_sha256_hash_byte_array])
 
-    print("message hash limbs: ", message_hash_limbs)
-    print("signature limbs: ", signature_limbs)
-    print("public key e limbs: ", pubkey_e_limbs)
-    print("public key n: limbs", pubkey_n_limbs)
-    print("--------------------")
+    # Print Message Hash in Little Endean
+    message_hash_in_bytes_of_size_70 = [int(el) for el in bytearray(message_hash_bytes)]
+    message_hash_in_bytes_of_size_70.reverse()
+    # while len(message_hash_in_bytes_of_size_70) < 70:
+    #   # Add elements to the array
+    #   message_hash_in_bytes_of_size_70.append(0)
+    print("Message hash", message_hash_in_bytes_of_size_70)
+    
+    # integer little endian representation in Noir Code = [32, 4, 0, 5, 1, 2, 4, 3, 101, 1, 72, 134, 96, 9, 6, 13, 48, 49, 48]
+    hex_big_endian = "3031300d060960864801650304020105000420"
+    int_little_endian = [int(''.join([hex_big_endian[i], hex_big_endian[i+1]]), 16) for i in range(0, len(hex_big_endian), 2)]
+    int_little_endian.reverse()
+    print("Integer Little Endian", int_little_endian)
 
 __main__()
