@@ -14,7 +14,7 @@ MAX_BITS = 560
 MAX_BYTES = 70
 
 def breakdown_to_limbs(num):
-  # Breakwdown the number into limbs
+  # Breakdown the number into limbs
   # Limbs are 56 bits long
   # The limbs are in a little endian format
   # The limbs are stored in a list
@@ -79,10 +79,10 @@ def __main__():
     padded_sha256_hash_byte_array.reverse()
     print("padded 256 hash in bytes in little endian: ", [int(el) for el in padded_sha256_hash_byte_array])
 
-    # print("message hash limbs: ", message_hash_limbs)
-    # print("signature limbs: ", signature_limbs)
-    # print("public key e limbs: ", pubkey_e_limbs)
-    # print("public key n: limbs", pubkey_n_limbs)
+    print("message hash limbs: ", message_hash_limbs)
+    print("signature limbs: ", signature_limbs)
+    print("public key e limbs: ", pubkey_e_limbs)
+    print("public key n: limbs", pubkey_n_limbs)
     print("--------------------")
 
 __main__()
