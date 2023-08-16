@@ -8,10 +8,11 @@ fake = Faker()
 NUM_EXAMPLES = 1
 
 BITS_PER_LIMB =  56
-NUM_LIMBS = 10
-BYTES_PER_LIMB = 7
-MAX_BITS = 560
-MAX_BYTES = 70
+NUM_LIMBS = 37
+BYTES_PER_LIMB = 7 # Number of bytes per limb (BITS_PER_LIMB / 8).
+MAX_BITS = 2072 # Maximum number of bits (BITS_PER_LIMB * NUM_LIMBS).
+MAX_BYTES = 259 # Maximum number of bytes (NUM_LIMBS * BYTES_PER_LIMB).
+
 
 def breakdown_to_limbs(num):
   # Breakdown the number into limbs
@@ -48,13 +49,13 @@ def __main__():
     print("Example: ", i)
 
     # Generate Public and Private Keys
-    (pubkey, privkey) = rsa.newkeys(512)
+    (pubkey, privkey) = rsa.newkeys(2048)
 
     pubkey_e_limbs = breakdown_to_limbs(pubkey.e)
     pubkey_n_limbs = breakdown_to_limbs(pubkey.n)
 
     # 1 - Generate message
-    message = fake.text()
+    message = "Hello World! This is Noir-RSA" # fake.text()
     message_bytes = message.encode()
 
     # 2 - Generate Hashed and Padded Message
