@@ -49,14 +49,19 @@ def __main__():
     print("Example: ", i)
 
     # Generate Public and Private Keys
-    (pubkey, privkey) = rsa.newkeys(1024)
+    # (pubkey, privkey) = rsa.newkeys(1024)
 
-    pubkey_e_limbs = breakdown_to_limbs(pubkey.e)
-    pubkey_n_limbs = breakdown_to_limbs(pubkey.n)
+    pubkey_e = 65537
+    pubkey_n = 139598662710773664102642358570432516379596390497506043389128172540767324028772581520964403424474152246741976321281477033343057554584876768940078817009169280329895177148247654267175764915213957680957788218951292280263042701588196474802827904145218909739601271419613242891314447770423863871028258561712245284281
+
+    pubkey_e_limbs = breakdown_to_limbs(pubkey_e)
+    pubkey_n_limbs = breakdown_to_limbs(pubkey_n)
 
     # 1 - Generate message
-    message = "Hello World! This is Noir-RSA" # fake.text()
-    message_bytes = message.encode()
+    # message = "Hello World! This is Noir-RSA" # fake.text()
+    message_bytes = bytes(bytearray([
+      102, 114, 111, 109, 58, 97, 108, 105, 99, 101, 64, 122, 107, 101, 109, 97, 105, 108, 46, 99, 111, 109, 13, 10, 100, 107, 105, 109, 45, 115, 105, 103, 110, 97, 116, 117, 114, 101, 58, 118, 61, 49, 59, 32, 97, 61, 114, 115, 97, 45, 115, 104, 97, 50, 53, 54, 59, 32, 100, 61, 122, 107, 101, 109, 97, 105, 108, 46, 99, 111, 109, 59, 32, 115, 61, 100, 101, 102, 97, 117, 108, 116, 59, 32, 99, 61, 114, 101, 108, 97, 120, 101, 100, 47, 114, 101, 108, 97, 120, 101, 100, 59, 32, 104, 61, 102, 114, 111, 109, 59, 32, 116, 61, 49, 54, 57, 50, 53, 55, 55, 50, 51, 49, 59, 32, 98, 104, 61, 80, 72, 73, 114, 87, 101, 121, 90, 114, 71, 43, 68, 53, 116, 106, 56, 81, 97, 115, 83, 67, 111, 115, 116, 53, 65, 108, 104, 48, 104, 115, 48, 100, 90, 90, 103, 111, 80, 108, 99, 72, 74, 119, 61, 59, 32, 98, 61, 59
+    ]))
 
     # 2 - Generate Hashed and Padded Message
     message_hash_bytes = rsa.compute_hash(message_bytes, 'SHA-256')
@@ -64,24 +69,22 @@ def __main__():
     message_hash_limbs = breakdown_to_limbs(message_hash_int)
 
     # 3- Generated Signature
-    signature_bytes = rsa.sign_hash(message_hash_bytes, privkey, 'SHA-256')
-    signature_int = int.from_bytes(signature_bytes, 'big')
+    # signature_bytes = rsa.sign_hash(message_hash_bytes, privkey, 'SHA-256')
+    signature_int = 127626553341335668354120020103133913651773246041262838969858601241458000925973213432623507949465532653326396153790691491129967442028971099085045413476791263956364822503108010926785687893737536831768323602449197160854222146013004152835611064290098157672225578348832162259732062436665772664139295298741587637051
     signature_limbs = breakdown_to_limbs(signature_int)
 
     # Print inputs to Verify Function
-    print("Original Message Text", message)
+    # print("Original Message Text", message)
     print("message hash limbs: ", message_hash_limbs)
     print("signature limbs: ", signature_limbs)
-    print("signature", signature_int)
     print("public key e limbs: ", pubkey_e_limbs)
     print("public key n: limbs", pubkey_n_limbs)
-    print("public key", pubkey.n)
     print("-----------Debugging Lines Below ---------")
 
     # ----- Below is print for debugging purposes where we print all lines in Little Endean
     # The things that we want to print are 1) Padded Message Hash, 2) Message Hash
 
-    padded_sha256_hash = (signature_int ** pubkey.e) % pubkey.n
+    padded_sha256_hash = (signature_int ** pubkey_e) % pubkey_n
     # print("padded 256 num: ", hex(padded_sha256_hash))
 
     # Print Message Padded Message Hash
