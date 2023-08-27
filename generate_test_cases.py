@@ -8,10 +8,10 @@ fake = Faker()
 NUM_EXAMPLES = 1
 
 BITS_PER_LIMB =  56
-NUM_LIMBS = 37
+NUM_LIMBS = 74
 BYTES_PER_LIMB = 7 # Number of bytes per limb (BITS_PER_LIMB / 8).
-MAX_BITS = 2072 # Maximum number of bits (BITS_PER_LIMB * NUM_LIMBS).
-MAX_BYTES = 259 # Maximum number of bytes (NUM_LIMBS * BYTES_PER_LIMB).
+MAX_BITS = 4144 # Maximum number of bits (BITS_PER_LIMB * NUM_LIMBS).
+MAX_BYTES = 518 # Maximum number of bytes (NUM_LIMBS * BYTES_PER_LIMB).
 
 
 def breakdown_to_limbs(num):
@@ -49,7 +49,7 @@ def __main__():
     print("Example: ", i)
 
     # Generate Public and Private Keys
-    (pubkey, privkey) = rsa.newkeys(1024)
+    (pubkey, privkey) = rsa.newkeys(2048)
 
     pubkey_e_limbs = breakdown_to_limbs(pubkey.e)
     pubkey_n_limbs = breakdown_to_limbs(pubkey.n)
@@ -85,7 +85,7 @@ def __main__():
     # print("padded 256 num: ", hex(padded_sha256_hash))
 
     # Print Message Padded Message Hash
-    padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(259, 'big') # 8 * 70 = 560 (MAX_BYTES = 70)
+    padded_sha256_hash_bytes = padded_sha256_hash.to_bytes(MAX_BYTES, 'big') # 8 * 70 = 560 (MAX_BYTES = 70)
     padded_sha256_hash_byte_array = bytearray(padded_sha256_hash_bytes)
     padded_sha256_hash_byte_array.reverse()
 
